@@ -1033,9 +1033,9 @@ dependencies = [
 
 [[package]]
 name = "gmt_dos-clients"
-version = "4.0.0"
+version = "4.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d18e4c8e64be5f386c35575525d50d1b5f7cb50f1cae96a947c055cb3746b49b"
+checksum = "b6f8e25df73978da498006d3b59fbf7e1986632666c74e616922abd55e5cfe15"
 dependencies = [
  "gmt_dos-actors-clients_interface 1.0.0",
  "indicatif",
@@ -1044,9 +1044,9 @@ dependencies = [
 
 [[package]]
 name = "gmt_dos-clients_crseo"
-version = "3.4.1"
+version = "3.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6cb01c92dfd0c1a8bdc2021f46183718a86c0f21b8e7b856a3b360e3041a90aa"
+checksum = "82a7c7b8dc7a15e66087abc5707e43d4f3e9628ed50cd3c703c02eedd5e21e51"
 dependencies = [
  "anyhow",
  "crseo",

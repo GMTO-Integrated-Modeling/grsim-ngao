@@ -10,7 +10,7 @@ async fn main() -> anyhow::Result<()> {
 
     let metronome: Timer = Timer::new(10);
 
-    let stats = WavefrontStats::<1>::default();
+    let stats: WavefrontStats = Default::default();
 
     let prt = Print::new(3);
 

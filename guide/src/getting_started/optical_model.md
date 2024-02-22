@@ -17,7 +17,7 @@ cargo add anyhow
 cargo add tokio --features rt-multi-thread
 ```
 
-The `main` script is the `src` folder and it is compiled by invoking [cargo]:
+The `main` script is in the `src` folder and it is compiled by invoking [cargo]:
 ```bash
 cargo build
 ```
