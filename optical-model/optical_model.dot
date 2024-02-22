@@ -1,0 +1,21 @@
+
+digraph  G {
+  overlap = scale;
+  splines = true;
+  bgcolor = gray24;
+  {node [shape=box, width=1.5, style="rounded,filled", fillcolor=lightgray]; 7469774414343895686 [label="Timer"]; 18008689406030921926 [label="OpticalModel"]; 516924258849765812 [label="WavefrontStats"];}
+  node [shape=point, fillcolor=gray24, color=lightgray];
+
+  /* Outputs */
+{
+  edge [arrowhead=none,colorscheme=dark28];
+  7469774414343895686 -> 3258540324722167673 [color=1];
+18008689406030921926 -> 15949852094478809501 [color=1];
+}
+  /* Inputs */
+{
+  edge [arrowhead=vee,fontsize=9, fontcolor=lightgray, labelfloat=true,colorscheme=dark28]
+  3258540324722167673 -> 18008689406030921926 [label="Tick", color=1];
+15949852094478809501 -> 516924258849765812 [label="GuideStar", color=1];
+}
+}

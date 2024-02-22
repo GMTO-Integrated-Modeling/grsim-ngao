@@ -1,0 +1,6 @@
+[book]
+authors = ["Rod Conan"]
+language = "en"
+multilingual = false
+src = "src"
+title = "GMT NGAO Model with Rust DOS Actors"
