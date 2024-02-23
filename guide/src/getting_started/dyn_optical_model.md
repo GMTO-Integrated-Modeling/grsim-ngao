@@ -26,11 +26,11 @@ With the help of the new dependencies, we re-write the `main` script as
  
   *  a timer that gives a beat 10 times in a row:
 ```rust,no_run,noplayground
-{{#include ../../../optical-model/src/main.rs:11}}
+{{#include ../../../optical-model/src/main.rs:10}}
 ```
   * the [Print] client to display the wavefront error RMS in nm with 3 digits precision:
 ```rust,no_run,noplayground
-{{#include ../../../optical-model/src/main.rs:15}}
+{{#include ../../../optical-model/src/main.rs:12}}
 ```
 
 The `actorscript` macro inserts each client into its own actor and links them together according to the prescribed data flow:
