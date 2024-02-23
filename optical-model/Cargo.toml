@@ -9,6 +9,6 @@ edition = "2021"
 anyhow = "1.0.80"
 gmt_dos-actors = "10.1.4"
 gmt_dos-clients = "4.0.1"
-gmt_dos-clients_crseo = "3.4.2"
+gmt_dos-clients_crseo = "4.0.0"
 gmt_dos-clients_io = "4.1.0"
 tokio = { version = "1.36.0", features = ["rt-multi-thread"] }

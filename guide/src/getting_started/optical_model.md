@@ -34,8 +34,8 @@ Let's replace the contents of the `main` script with the following:
 
  ```rust,no_run,noplayground
 {{#include ../../../optical-model/src/main.rs:3}}
-{{#include ../../../optical-model/src/main.rs:7:9}}
-{{#include ../../../optical-model/src/main.rs:21:22}}
+{{#include ../../../optical-model/src/main.rs:6:8}}
+{{#include ../../../optical-model/src/main.rs:18:19}}
  ```
 
  The default [OpticalModel] is just the GMT segmented optical model with an on-axis source.

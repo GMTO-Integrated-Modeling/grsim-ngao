@@ -28,10 +28,6 @@ With the help of the new dependencies, we re-write the `main` script as
 ```rust,no_run,noplayground
 {{#include ../../../optical-model/src/main.rs:11}}
 ```
-  * the [WavefrontStats] client to compute optical metrics from a single source:
-```rust,no_run,noplayground
-{{#include ../../../optical-model/src/main.rs:13}}
-```
   * the [Print] client to display the wavefront error RMS in nm with 3 digits precision:
 ```rust,no_run,noplayground
 {{#include ../../../optical-model/src/main.rs:15}}
@@ -39,9 +35,8 @@ With the help of the new dependencies, we re-write the `main` script as
 
 The `actorscript` macro inserts each client into its own actor and links them together according to the prescribed data flow:
 the timer gives the beat to the optical model, 
-at each beat the optical model ray traces through the GMT to the exit pupil
-and share the source (`GuideStar`) with the [WavefrontStats] client,
-finally the [WavefrontStats] client computes the wavefront RMS and
+at each beat the optical model ray traces through the GMT to the exit pupil,
+computes the wavefront RMS and
  passes the value to [Print] that displays it.
 
 After runnning the script with

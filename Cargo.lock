@@ -1044,9 +1044,9 @@ dependencies = [
 
 [[package]]
 name = "gmt_dos-clients_crseo"
-version = "3.4.2"
+version = "4.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "82a7c7b8dc7a15e66087abc5707e43d4f3e9628ed50cd3c703c02eedd5e21e51"
+checksum = "54e79c009577c8ed194b69eafdfe34ac20219ff1b100e997e15d30deabc1238c"
 dependencies = [
  "anyhow",
  "crseo",
