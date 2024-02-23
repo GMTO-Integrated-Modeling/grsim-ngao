@@ -215,11 +215,11 @@ async fn main() -&gt; anyhow::Result&lt;()&gt; {
 <ul>
 <li>a timer that gives a beat 10 times in a row:</li>
 </ul>
-<pre><code class="language-rust no_run noplayground"></code></pre>
+<pre><code class="language-rust no_run noplayground">    let metronome: Timer = Timer::new(10);</code></pre>
 <ul>
 <li>the <a href="https://docs.rs/gmt_dos-clients/4.0.0/gmt_dos_clients/print/struct.Print.html">Print</a> client to display the wavefront error RMS in nm with 3 digits precision:</li>
 </ul>
-<pre><code class="language-rust no_run noplayground">        1: metronome[Tick] -&gt; optical_model[WfeRms&lt;-9&gt;] -&gt; prt</code></pre>
+<pre><code class="language-rust no_run noplayground">    let prt = Print::new(3);</code></pre>
 <p>The <code>actorscript</code> macro inserts each client into its own actor and links them together according to the prescribed data flow:
 the timer gives the beat to the optical model,
 at each beat the optical model ray traces through the GMT to the exit pupil,
