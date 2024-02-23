@@ -195,7 +195,6 @@ Here we add the <a href="https://docs.rs/gmt_dos-actors_dsl/latest/gmt_dos_actor
 <pre><code class="language-rust no_run noplayground">use gmt_dos_actors::actorscript;
 use gmt_dos_clients::{print::Print, Tick, Timer};
 use gmt_dos_clients_crseo::OpticalModel;
-use gmt_dos_clients_crseo::{GuideStar, WavefrontStats};
 use gmt_dos_clients_io::optics::WfeRms;
 
 #[tokio::main]
@@ -204,12 +203,10 @@ async fn main() -&gt; anyhow::Result&lt;()&gt; {
 
    let metronome: Timer = Timer::new(10);
 
-   let stats: WavefrontStats = Default::default();
-
    let prt = Print::new(3);
 
    actorscript!(
-       1: metronome[Tick] -&gt; optical_model[GuideStar] -&gt; stats[WfeRms&lt;-9&gt;] -&gt; prt
+       1: metronome[Tick] -&gt; optical_model[WfeRms&lt;-9&gt;] -&gt; prt
    );
 
    Ok(())
@@ -218,20 +215,15 @@ async fn main() -&gt; anyhow::Result&lt;()&gt; {
 <ul>
 <li>a timer that gives a beat 10 times in a row:</li>
 </ul>
-<pre><code class="language-rust no_run noplayground">    let metronome: Timer = Timer::new(10);</code></pre>
-<ul>
-<li>the <a href="https://docs.rs/gmt_dos-clients_crseo/latest/gmt_dos_clients_crseo/struct.WavefrontStats.html">WavefrontStats</a> client to compute optical metrics from a single source:</li>
-</ul>
-<pre><code class="language-rust no_run noplayground">    let stats: WavefrontStats = Default::default();</code></pre>
+<pre><code class="language-rust no_run noplayground"></code></pre>
 <ul>
 <li>the <a href="https://docs.rs/gmt_dos-clients/4.0.0/gmt_dos_clients/print/struct.Print.html">Print</a> client to display the wavefront error RMS in nm with 3 digits precision:</li>
 </ul>
-<pre><code class="language-rust no_run noplayground">    let prt = Print::new(3);</code></pre>
+<pre><code class="language-rust no_run noplayground">        1: metronome[Tick] -&gt; optical_model[WfeRms&lt;-9&gt;] -&gt; prt</code></pre>
 <p>The <code>actorscript</code> macro inserts each client into its own actor and links them together according to the prescribed data flow:
 the timer gives the beat to the optical model,
-at each beat the optical model ray traces through the GMT to the exit pupil
-and share the source (<code>GuideStar</code>) with the <a href="https://docs.rs/gmt_dos-clients_crseo/latest/gmt_dos_clients_crseo/struct.WavefrontStats.html">WavefrontStats</a> client,
-finally the <a href="https://docs.rs/gmt_dos-clients_crseo/latest/gmt_dos_clients_crseo/struct.WavefrontStats.html">WavefrontStats</a> client computes the wavefront RMS and
+at each beat the optical model ray traces through the GMT to the exit pupil,
+computes the wavefront RMS and
 passes the value to <a href="https://docs.rs/gmt_dos-clients/4.0.0/gmt_dos_clients/print/struct.Print.html">Print</a> that displays it.</p>
 <p>After runnning the script with</p>
 <pre><code class="language-bash">cargo run
