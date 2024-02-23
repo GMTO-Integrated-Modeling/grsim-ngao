@@ -1,3 +1,0 @@
-[workspace]
-members = ["optical-model"]
-resolver = "2"
