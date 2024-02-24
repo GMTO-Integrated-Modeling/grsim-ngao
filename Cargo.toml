@@ -7,3 +7,4 @@ gmt_dos-actors = { path = "/home/ubuntu/projects/dos-actors/actors" }
 gmt_dos-clients = { path = "/home/ubuntu/projects/dos-actors/clients/core" }
 gmt_dos-clients_crseo = { path = "/home/ubuntu/projects/dos-actors/clients/crseo" }
 gmt_dos-clients_io = { path = "/home/ubuntu/projects/dos-actors/clients/io" }
+crseo = { path = "/home/ubuntu/projects/crseo" }
