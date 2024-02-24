@@ -5,7 +5,7 @@ use gmt_dos_clients_io::optics::WfeRms;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    let optical_model = OpticalModel::builder().build()?;
+    let optical_model: OpticalModel = Default::default();
 
     let metronome: Timer = Timer::new(10);
 
