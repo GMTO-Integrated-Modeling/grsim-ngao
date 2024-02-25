@@ -1,14 +1,12 @@
 [package]
-name = "optical-model"
+name = "optical-model-pym"
 version = "0.1.0"
 edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 anyhow.workspace = true
 gmt_dos-actors.workspace = true
 gmt_dos-clients.workspace = true
-gmt_dos-clients_crseo.workspace = true
+gmt_dos-clients_crseo = { workspace = true, features = ["faer"] }
 gmt_dos-clients_io.workspace = true
 tokio.workspace = true
