@@ -89,7 +89,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="getting_started.html"><strong aria-hidden="true">2.</strong> Getting started</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="getting_started/optical_model.html"><strong aria-hidden="true">2.1.</strong> Optical Model</a></li><li class="chapter-item expanded "><a href="getting_started/dyn_optical_model.html"><strong aria-hidden="true">2.2.</strong> Dynamic Optical Model</a></li></ol></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="getting_started.html"><strong aria-hidden="true">2.</strong> Getting started</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="getting_started/optical_model.html"><strong aria-hidden="true">2.1.</strong> Optical Model</a></li><li class="chapter-item expanded "><a href="getting_started/dyn_optical_model.html"><strong aria-hidden="true">2.2.</strong> Dynamic Optical Model</a></li></ol></li><li class="chapter-item expanded "><a href="closed-loop_NGAO.html"><strong aria-hidden="true">3.</strong> Closed-loop NGAO</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="closed_loop_ngao/complete_model.html"><strong aria-hidden="true">3.1.</strong> Complete model</a></li></ol></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle">
                 <div class="sidebar-resize-indicator"></div>
@@ -214,7 +214,7 @@ cargo add tokio --features rt-multi-thread
 <pre><code class="language-rust no_run noplayground">use gmt_dos_clients_crseo::OpticalModel;
 #[tokio::main]
 async fn main() -&gt; anyhow::Result&lt;()&gt; {
-   let optical_model = OpticalModel::builder().build()?;
+   let optical_model: OpticalModel = Default::default();
    Ok(())
 }</code></pre>
 <p>The default <a href="https://docs.rs/gmt_dos-clients_crseo/3.4.1/gmt_dos_clients_crseo/struct.OpticalModel.html">OpticalModel</a> is just the GMT segmented optical model with an on-axis source.
@@ -246,7 +246,7 @@ use gmt_dos_clients_io::optics::WfeRms;
 
 #[tokio::main]
 async fn main() -&gt; anyhow::Result&lt;()&gt; {
-   let optical_model = OpticalModel::builder().build()?;
+   let optical_model: OpticalModel = Default::default();
 
    let metronome: Timer = Timer::new(10);
 
@@ -281,6 +281,125 @@ passes the value to <a href="https://docs.rs/gmt_dos-clients/4.0.0/gmt_dos_clien
 </code></pre>
 <p>The script also produces a flowchart of the model similar to this one:
 <img src="getting_started/model.dot.svg" alt="dynamic optical model" /></p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="closed-loop-ngao"><a class="header" href="#closed-loop-ngao">Closed-loop NGAO</a></h1>
+<p>Building upon the <a href="getting_started/dyn_optical_model.html">dynamic optical model</a>, we are going to build a closed-loop NGAO system with a pyramid wavefront sensor (<a href="https://docs.rs/crseo/latest/crseo/wavefrontsensor/struct.Pyramid.html">P-WFS</a>).
+First, we define the modal basis and the number of modes for M2:</p>
+<pre><code class="language-rust no_run noplayground">    let (m2_modes, n_mode) = ("ASM_DDKLs_S7OC04184_675kls", 66);</code></pre>
+<p>and next we setup the <a href="https://docs.rs/crseo/latest/crseo/wavefrontsensor/struct.Pyramid.html">P-WFS</a></p>
+<pre><code class="language-rust no_run noplayground">    let n_lenslet: usize = 92;
+    let pym = Pyramid::builder()
+        .lenslet_array(LensletArray {
+            n_side_lenslet: n_lenslet,
+            n_px_lenslet: 10,
+            d: 0f64,
+        })
+        .modulation(2., 64);</code></pre>
+<p>The optical model is updated to include the <a href="https://docs.rs/crseo/latest/crseo/wavefrontsensor/struct.Pyramid.html">P-WFS</a></p>
+<pre><code class="language-rust no_run noplayground">    let optical_model = OpticalModel::&lt;Pyramid&gt;::builder()
+        .gmt(Gmt::builder().m2(m2_modes, n_mode))
+        .pyramid(pym)
+        .atmosphere(Default::default())
+        .build()?;</code></pre>
+<p>where the <a href="https://docs.rs/crseo/latest/crseo/struct.GmtBuilder.html">GMT builder</a> is invoked to set M2 and an <a href="https://docs.rs/crseo/latest/crseo/atmosphere/struct.AtmosphereBuilder.html#impl-Default-for-AtmosphereBuilder">atmospheric turbulence model</a> has been added as well.</p>
+<p>We then add a new flow inside actorscript with a new ouput to the optical model for the <a href="https://docs.rs/gmt_dos-clients_crseo/latest/gmt_dos_clients_crseo/struct.DetectorFrame.html">detector frame</a> of the <a href="https://docs.rs/crseo/latest/crseo/wavefrontsensor/struct.Pyramid.html">P-WFS</a></p>
+<pre><code class="language-rust no_run noplayground">        1: optical_model[DetectorFrame]</code></pre>
+<p>The <a href="https://docs.rs/gmt_dos-clients_crseo/latest/gmt_dos_clients_crseo/struct.DetectorFrame.html">detector frame</a> is being process with <a href="https://docs.rs/crseo/latest/crseo/wavefrontsensor/struct.Pyramid.html">P-WFS</a> data <a href="https://docs.rs/gmt_dos-clients_crseo/latest/gmt_dos_clients_crseo/struct.Processor.html">processor</a></p>
+<pre><code class="language-rust no_run noplayground">    let processor: Processor&lt;_&gt; = Processor::try_from(&amp;pym)?;</code></pre>
+<p>and within actorscript, the <a href="https://docs.rs/gmt_dos-clients_crseo/latest/gmt_dos_clients_crseo/struct.Processor.html">processor</a> receives the <a href="https://docs.rs/gmt_dos-clients_crseo/latest/gmt_dos_clients_crseo/struct.DetectorFrame.html">detector frame</a> and outputs the pyramid <a href="https://docs.rs/gmt_dos-clients_crseo/latest/gmt_dos_clients_crseo/enum.PyramidMeasurements.html">measurements</a></p>
+<pre><code class="language-rust no_run noplayground">        1: optical_model[DetectorFrame]
+            -&gt; processor[PyramidMeasurements]</code></pre>
+<p>The <a href="https://docs.rs/gmt_dos-clients_crseo/latest/gmt_dos_clients_crseo/enum.PyramidMeasurements.html">measurements</a> are then transformed into coefficients of the modal basis by the <a href="https://docs.rs/gmt_dos-clients_crseo/latest/gmt_dos_clients_crseo/struct.Calibration.html">calibrator</a></p>
+<pre><code class="language-rust no_run noplayground">let calibrator: Calibration&lt;PyramidCalibrator&gt; = {
+    let mut pymtor = PyramidCalibrator::builder(pym.clone(), m2_modes, n_mode)
+        .n_thread(7)
+        .build()?;
+    pymtor.h00_estimator()?;
+    pymtor
+}
+.into()</code></pre>
+<p>The <a href="https://docs.rs/gmt_dos-clients_crseo/latest/gmt_dos_clients_crseo/struct.Calibration.html">calibrator</a> is linked to the <a href="https://docs.rs/gmt_dos-clients_crseo/latest/gmt_dos_clients_crseo/struct.Processor.html">processor</a> and it outputs residual coefficients</p>
+<pre><code class="language-rust no_run noplayground">        1: optical_model[DetectorFrame]
+            -&gt; processor[PyramidMeasurements]
+                -&gt; calibrator[ResidualM2modes]</code></pre>
+<p>Finally an <a href="https://docs.rs/gmt_dos-clients/latest/gmt_dos_clients/integrator/struct.Integrator.html">integral controller</a>:</p>
+<pre><code class="language-rust no_run noplayground">    let pym_ctrl = Integrator::&lt;ResidualM2modes&gt;::new((n_mode - 1) * 7).gain(0.5);</code></pre>
+<p>accumulates the residual coefficients and sends the modal coefficients to the optical model that updates M2 figure</p>
+<pre><code class="language-rust no_run noplayground">        1: optical_model[DetectorFrame]
+            -&gt; processor[PyramidMeasurements]
+                -&gt; calibrator[ResidualM2modes]
+                    -&gt; pym_ctrl[M2modes]!
+                        -&gt; optical_model</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="complete-model"><a class="header" href="#complete-model">Complete model</a></h1>
+<p>To compute the pyramid reconstructor,
+a feature needs to be added to the <a href="https://crates.io/crates/gmt_dos-clients_crseo">gmt_dos-clients_crseo</a> crate:</p>
+<pre><code class="language-bash">cargo add gmt_dos-clients_crseo --features faer
+</code></pre>
+<p>The complete closed-loop NGAO model is given below:</p>
+<pre><code class="language-rust no_run noplayground">use gmt_dos_actors::actorscript;
+use gmt_dos_clients::{print::Print, Integrator, Tick, Timer};
+use gmt_dos_clients_crseo::{
+    crseo::{
+        wavefrontsensor::{LensletArray, Pyramid},
+        FromBuilder, Gmt,
+    },
+    Calibration, DetectorFrame, OpticalModel, Processor, PyramidCalibrator, PyramidMeasurements,
+    ResidualM2modes,
+};
+use gmt_dos_clients_io::optics::{M2modes, WfeRms};
+
+#[tokio::main]
+async fn main() -&gt; anyhow::Result&lt;()&gt; {
+    let n_lenslet: usize = 92;
+    let pym = Pyramid::builder()
+        .lenslet_array(LensletArray {
+            n_side_lenslet: n_lenslet,
+            n_px_lenslet: 10,
+            d: 0f64,
+        })
+        .modulation(2., 64);
+
+    let processor: Processor&lt;_&gt; = Processor::try_from(&amp;pym)?;
+
+    let (m2_modes, n_mode) = ("ASM_DDKLs_S7OC04184_675kls", 66);
+    let calibrator: Calibration&lt;PyramidCalibrator&gt; = {
+        let filename = format! {"pym-{m2_modes}-{n_mode}.bin"};
+        if let Ok(pymtor) = PyramidCalibrator::try_from(filename.as_str()) {
+            pymtor
+        } else {
+            let mut pymtor = PyramidCalibrator::builder(pym.clone(), m2_modes, n_mode)
+                .n_thread(7)
+                .build()?;
+            pymtor.h00_estimator()?;
+            pymtor.save(filename)?
+        }
+        .into()
+    };
+
+    let optical_model = OpticalModel::&lt;Pyramid&gt;::builder()
+        .gmt(Gmt::builder().m2(m2_modes, n_mode))
+        .pyramid(pym)
+        .atmosphere(Default::default())
+        .build()?;
+
+    let metronome: Timer = Timer::new(100);
+
+    let prt = Print::default();
+
+    let pym_ctrl = Integrator::&lt;ResidualM2modes&gt;::new((n_mode - 1) * 7).gain(0.5);
+
+    actorscript!(
+        1: metronome[Tick] -&gt; optical_model[WfeRms&lt;-9&gt;] -&gt; prt
+        1: optical_model[DetectorFrame]
+            -&gt; processor[PyramidMeasurements]
+                -&gt; calibrator[ResidualM2modes]
+                    -&gt; pym_ctrl[M2modes]!
+                        -&gt; optical_model
+    );
+
+    Ok(())
+}</code></pre>
+<p>The model flowchart:
+<img src="closed_loop_ngao/closed-loop_NGAO.dot.svg" alt="closed-loop NGAO model" /></p>
 
                     </main>
 
