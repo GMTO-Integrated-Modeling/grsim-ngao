@@ -195,7 +195,7 @@ use gmt_dos_clients_crseo::{
     Calibration, DetectorFrame, OpticalModel, Processor, PyramidCalibrator, PyramidMeasurements,
     ResidualM2modes,
 };
-use gmt_dos_clients_io::optics::{M2modes, WfeRms};
+use gmt_dos_clients_io::optics::{M2modes, Wavefront, WfeRms};
 
 #[tokio::main]
 async fn main() -&gt; anyhow::Result&lt;()&gt; {
@@ -238,13 +238,19 @@ async fn main() -&gt; anyhow::Result&lt;()&gt; {
     let pym_ctrl = Integrator::&lt;ResidualM2modes&gt;::new(n_mode * 7).gain(0.5);
 
     actorscript!(
-        1: metronome[Tick] -&gt; optical_model[WfeRms&lt;-9&gt;]${1}.. -&gt; prt
+        1: metronome[Tick] -&gt; optical_model[WfeRms&lt;-9&gt;]$.. -&gt; prt
         1: optical_model[DetectorFrame]
             -&gt; processor[PyramidMeasurements]
                 -&gt; calibrator[ResidualM2modes]
                     -&gt; pym_ctrl[M2modes]!
                         -&gt; optical_model
         10: pym_ctrl[M2modes]!${n_mode*7}
+    );
+
+    let metronome: Timer = Timer::new(0);
+    actorscript!(
+        #[model(name=wavefront)]
+        1: metronome[Tick] -&gt; optical_model[Wavefront]!$
     );
 
     Ok(())

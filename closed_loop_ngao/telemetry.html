@@ -183,8 +183,11 @@
 <p>A new dependency is required in order to log data from any model:</p>
 <pre><code class="language-bash">cargo add gmt_dos-clients_arrow
 </code></pre>
-<p>Telemetry or data logging is achieve by apending a <code>$</code> <a href="https://docs.rs/gmt_dos-actors_dsl/latest/gmt_dos_actors_dsl/macro.actorscript.html#client-output-pair">sign</a> to an output with the size of the output within braces:</p>
-<pre><code class="language-rust no_run noplayground">        1: metronome[Tick] -&gt; optical_model[WfeRms&lt;-9&gt;]${1}.. -&gt; prt
+<p>Telemetry or data logging is achieve by appending a <code>$</code> <a href="https://docs.rs/gmt_dos-actors_dsl/latest/gmt_dos_actors_dsl/macro.actorscript.html#client-output-pair">token</a> to an output.
+The size of the ouput that is recorded needs to be know by the data logger and it is provided by the <a href="https://docs.rs/gmt_dos-actors-clients_interface/1.0.0/gmt_dos_actors_clients_interface/trait.Size.html">Size</a> trait,
+if it is implemented for the client of this output like <a href="https://docs.rs/gmt_dos-clients_crseo/latest/gmt_dos_clients_crseo/struct.OpticalModel.html#impl-Size%3CWfeRms%3E-for-OpticalModel%3CT%3E"><code>WfeRms</code></a>.
+The size of the output can also be passed on by inserting it within braces.</p>
+<pre><code class="language-rust no_run noplayground">        1: metronome[Tick] -&gt; optical_model[WfeRms&lt;-9&gt;]$.. -&gt; prt
         10: pym_ctrl[M2modes]!${n_mode*7}
 </code></pre>
 <p>The source wavefront error RMS is logged into the <a href="https://parquet.apache.org/">Apache Parquet</a> file: <code>model-data_1.parquet</code>
@@ -198,6 +201,14 @@ df = pd.read_parquet("model-data_10.parquet")
 modes = np.vstack(df['M2modes'])
 </code></pre>
 <p>Each row of the <code>numpy</code> array is a time sample.</p>
+<p>Sometimes, only data from the last step of a simulation is needed.
+Noting that actor's client are persistent, meaning that they outlive the model they are part of,
+another model can then be used to read some data from clients from a previously completed model:</p>
+<pre><code class="language-rust no_run noplayground">    let metronome: Timer = Timer::new(0);
+    actorscript!(
+        #[model(name=wavefront)]
+        1: metronome[Tick] -&gt; optical_model[Wavefront]!$
+    );</code></pre>
 
                     </main>
 
