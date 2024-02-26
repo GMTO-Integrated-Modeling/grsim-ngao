@@ -1444,10 +1444,26 @@ dependencies = [
 ]
 
 [[package]]
-name = "gmt_dos-clients_crseo"
-version = "4.0.1"
+name = "gmt_dos-clients_arrow"
+version = "2.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3340c63df350e424def1a5f63ed5b00c0464a00f93ffb5ca4f5c5d45f97d0459"
+checksum = "5b6b61f4b62dbc8a697535081580a6d58b119f2e5d0508083baf4ad37e8108bb"
+dependencies = [
+ "arrow",
+ "gmt_dos-actors",
+ "gmt_dos-actors-clients_interface 1.0.0",
+ "log",
+ "parquet",
+ "paste",
+ "regex",
+ "thiserror",
+]
+
+[[package]]
+name = "gmt_dos-clients_crseo"
+version = "4.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0faf3fb1a26deec945b5c56d90bc02a8acc2f0cf61fb5b97ecb019fcffdb12e8"
 dependencies = [
  "anyhow",
  "bincode 2.0.0-rc.3",
@@ -2064,6 +2080,7 @@ dependencies = [
  "anyhow",
  "gmt_dos-actors",
  "gmt_dos-clients",
+ "gmt_dos-clients_arrow",
  "gmt_dos-clients_crseo",
  "gmt_dos-clients_io 4.1.0",
  "tokio",

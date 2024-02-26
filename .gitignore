@@ -1,1 +1,4 @@
 book
+*.dot
+*.bin
+*.parquet

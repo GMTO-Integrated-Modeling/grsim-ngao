@@ -7,6 +7,7 @@ edition = "2021"
 anyhow.workspace = true
 gmt_dos-actors.workspace = true
 gmt_dos-clients.workspace = true
+gmt_dos-clients_arrow = "2.0.1"
 gmt_dos-clients_crseo = { workspace = true, features = ["faer"] }
 gmt_dos-clients_io.workspace = true
 tokio.workspace = true

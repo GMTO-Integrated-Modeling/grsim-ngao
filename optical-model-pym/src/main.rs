@@ -40,7 +40,7 @@ async fn main() -> anyhow::Result<()> {
 
     let optical_model = OpticalModel::<Pyramid>::builder()
         .gmt(Gmt::builder().m2(m2_modes, n_mode))
-        .pyramid(pym)
+        .sensor(pym)
         .atmosphere(Default::default())
         .build()?;
 
@@ -48,15 +48,16 @@ async fn main() -> anyhow::Result<()> {
 
     let prt = Print::default();
 
-    let pym_ctrl = Integrator::<ResidualM2modes>::new((n_mode - 1) * 7).gain(0.5);
+    let pym_ctrl = Integrator::<ResidualM2modes>::new(n_mode * 7).gain(0.5);
 
     actorscript!(
-        1: metronome[Tick] -> optical_model[WfeRms<-9>] -> prt
+        1: metronome[Tick] -> optical_model[WfeRms<-9>]${1}.. -> prt
         1: optical_model[DetectorFrame]
             -> processor[PyramidMeasurements]
                 -> calibrator[ResidualM2modes]
                     -> pym_ctrl[M2modes]!
                         -> optical_model
+        10: pym_ctrl[M2modes]!${n_mode*7}
     );
 
     Ok(())
