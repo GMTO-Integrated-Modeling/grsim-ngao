@@ -89,7 +89,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="getting_started.html"><strong aria-hidden="true">2.</strong> Getting started</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="getting_started/optical_model.html"><strong aria-hidden="true">2.1.</strong> Optical Model</a></li><li class="chapter-item expanded "><a href="getting_started/dyn_optical_model.html"><strong aria-hidden="true">2.2.</strong> Dynamic Optical Model</a></li></ol></li><li class="chapter-item expanded "><a href="closed-loop_NGAO.html"><strong aria-hidden="true">3.</strong> Closed-loop NGAO</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="closed_loop_ngao/complete_model.html"><strong aria-hidden="true">3.1.</strong> Complete model</a></li></ol></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="getting_started.html"><strong aria-hidden="true">2.</strong> Getting started</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="getting_started/optical_model.html"><strong aria-hidden="true">2.1.</strong> Optical Model</a></li><li class="chapter-item expanded "><a href="getting_started/dyn_optical_model.html"><strong aria-hidden="true">2.2.</strong> Dynamic Optical Model</a></li></ol></li><li class="chapter-item expanded "><a href="closed-loop_NGAO.html"><strong aria-hidden="true">3.</strong> Closed-loop NGAO</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="closed_loop_ngao/telemetry.html"><strong aria-hidden="true">3.1.</strong> Telemetry</a></li><li class="chapter-item expanded "><a href="closed_loop_ngao/complete_model.html"><strong aria-hidden="true">3.2.</strong> Complete model</a></li></ol></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle">
                 <div class="sidebar-resize-indicator"></div>
@@ -297,7 +297,7 @@ First, we define the modal basis and the number of modes for M2:</p>
 <p>The optical model is updated to include the <a href="https://docs.rs/crseo/latest/crseo/wavefrontsensor/struct.Pyramid.html">P-WFS</a></p>
 <pre><code class="language-rust no_run noplayground">    let optical_model = OpticalModel::&lt;Pyramid&gt;::builder()
         .gmt(Gmt::builder().m2(m2_modes, n_mode))
-        .pyramid(pym)
+        .sensor(pym)
         .atmosphere(Default::default())
         .build()?;</code></pre>
 <p>where the <a href="https://docs.rs/crseo/latest/crseo/struct.GmtBuilder.html">GMT builder</a> is invoked to set M2 and an <a href="https://docs.rs/crseo/latest/crseo/atmosphere/struct.AtmosphereBuilder.html#impl-Default-for-AtmosphereBuilder">atmospheric turbulence model</a> has been added as well.</p>
@@ -322,13 +322,32 @@ First, we define the modal basis and the number of modes for M2:</p>
             -&gt; processor[PyramidMeasurements]
                 -&gt; calibrator[ResidualM2modes]</code></pre>
 <p>Finally an <a href="https://docs.rs/gmt_dos-clients/latest/gmt_dos_clients/integrator/struct.Integrator.html">integral controller</a>:</p>
-<pre><code class="language-rust no_run noplayground">    let pym_ctrl = Integrator::&lt;ResidualM2modes&gt;::new((n_mode - 1) * 7).gain(0.5);</code></pre>
+<pre><code class="language-rust no_run noplayground">    let pym_ctrl = Integrator::&lt;ResidualM2modes&gt;::new(n_mode * 7).gain(0.5);</code></pre>
 <p>accumulates the residual coefficients and sends the modal coefficients to the optical model that updates M2 figure</p>
 <pre><code class="language-rust no_run noplayground">        1: optical_model[DetectorFrame]
             -&gt; processor[PyramidMeasurements]
                 -&gt; calibrator[ResidualM2modes]
                     -&gt; pym_ctrl[M2modes]!
                         -&gt; optical_model</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="telemetry"><a class="header" href="#telemetry">Telemetry</a></h1>
+<p>A new dependency is required in order to log data from any model:</p>
+<pre><code class="language-bash">cargo add gmt_dos-clients_arrow
+</code></pre>
+<p>Telemetry or data logging is achieve by apending a <code>$</code> <a href="https://docs.rs/gmt_dos-actors_dsl/latest/gmt_dos_actors_dsl/macro.actorscript.html#client-output-pair">sign</a> to an output with the size of the output within braces:</p>
+<pre><code class="language-rust no_run noplayground">        1: metronome[Tick] -&gt; optical_model[WfeRms&lt;-9&gt;]${1}.. -&gt; prt
+        10: pym_ctrl[M2modes]!${n_mode*7}
+</code></pre>
+<p>The source wavefront error RMS is logged into the <a href="https://parquet.apache.org/">Apache Parquet</a> file: <code>model-data_1.parquet</code>
+and M2 modal coefficients are decimated by a factor 10 and written to <code>model-data_10.parquet</code>.</p>
+<p>The <a href="https://parquet.apache.org/">Parquet</a> files can be read in Python with <code>pandas</code> and the data can be loaded into <code>numpy</code> arrays, e.g.</p>
+<pre><code class="language-python">import pandas as pd
+import numpy as np
+df = pd.read_parquet("model-data_1.parquet")
+wfe_rms = np.vstack(df["WfeRms&lt;-9"])
+df = pd.read_parquet("model-data_10.parquet")
+modes = np.vstack(df['M2modes'])
+</code></pre>
+<p>Each row of the <code>numpy</code> array is a time sample.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="complete-model"><a class="header" href="#complete-model">Complete model</a></h1>
 <p>To compute the pyramid reconstructor,
 a feature needs to be added to the <a href="https://crates.io/crates/gmt_dos-clients_crseo">gmt_dos-clients_crseo</a> crate:</p>
@@ -377,7 +396,7 @@ async fn main() -&gt; anyhow::Result&lt;()&gt; {
 
     let optical_model = OpticalModel::&lt;Pyramid&gt;::builder()
         .gmt(Gmt::builder().m2(m2_modes, n_mode))
-        .pyramid(pym)
+        .sensor(pym)
         .atmosphere(Default::default())
         .build()?;
 
@@ -385,15 +404,16 @@ async fn main() -&gt; anyhow::Result&lt;()&gt; {
 
     let prt = Print::default();
 
-    let pym_ctrl = Integrator::&lt;ResidualM2modes&gt;::new((n_mode - 1) * 7).gain(0.5);
+    let pym_ctrl = Integrator::&lt;ResidualM2modes&gt;::new(n_mode * 7).gain(0.5);
 
     actorscript!(
-        1: metronome[Tick] -&gt; optical_model[WfeRms&lt;-9&gt;] -&gt; prt
+        1: metronome[Tick] -&gt; optical_model[WfeRms&lt;-9&gt;]${1}.. -&gt; prt
         1: optical_model[DetectorFrame]
             -&gt; processor[PyramidMeasurements]
                 -&gt; calibrator[ResidualM2modes]
                     -&gt; pym_ctrl[M2modes]!
                         -&gt; optical_model
+        10: pym_ctrl[M2modes]!${n_mode*7}
     );
 
     Ok(())

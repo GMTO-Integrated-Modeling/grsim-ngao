@@ -88,7 +88,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="../introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="../getting_started.html"><strong aria-hidden="true">2.</strong> Getting started</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../getting_started/optical_model.html"><strong aria-hidden="true">2.1.</strong> Optical Model</a></li><li class="chapter-item expanded "><a href="../getting_started/dyn_optical_model.html"><strong aria-hidden="true">2.2.</strong> Dynamic Optical Model</a></li></ol></li><li class="chapter-item expanded "><a href="../closed-loop_NGAO.html"><strong aria-hidden="true">3.</strong> Closed-loop NGAO</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../closed_loop_ngao/complete_model.html" class="active"><strong aria-hidden="true">3.1.</strong> Complete model</a></li></ol></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="../introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="../getting_started.html"><strong aria-hidden="true">2.</strong> Getting started</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../getting_started/optical_model.html"><strong aria-hidden="true">2.1.</strong> Optical Model</a></li><li class="chapter-item expanded "><a href="../getting_started/dyn_optical_model.html"><strong aria-hidden="true">2.2.</strong> Dynamic Optical Model</a></li></ol></li><li class="chapter-item expanded "><a href="../closed-loop_NGAO.html"><strong aria-hidden="true">3.</strong> Closed-loop NGAO</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../closed_loop_ngao/telemetry.html"><strong aria-hidden="true">3.1.</strong> Telemetry</a></li><li class="chapter-item expanded "><a href="../closed_loop_ngao/complete_model.html" class="active"><strong aria-hidden="true">3.2.</strong> Complete model</a></li></ol></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle">
                 <div class="sidebar-resize-indicator"></div>
@@ -227,7 +227,7 @@ async fn main() -&gt; anyhow::Result&lt;()&gt; {
 
     let optical_model = OpticalModel::&lt;Pyramid&gt;::builder()
         .gmt(Gmt::builder().m2(m2_modes, n_mode))
-        .pyramid(pym)
+        .sensor(pym)
         .atmosphere(Default::default())
         .build()?;
 
@@ -235,15 +235,16 @@ async fn main() -&gt; anyhow::Result&lt;()&gt; {
 
     let prt = Print::default();
 
-    let pym_ctrl = Integrator::&lt;ResidualM2modes&gt;::new((n_mode - 1) * 7).gain(0.5);
+    let pym_ctrl = Integrator::&lt;ResidualM2modes&gt;::new(n_mode * 7).gain(0.5);
 
     actorscript!(
-        1: metronome[Tick] -&gt; optical_model[WfeRms&lt;-9&gt;] -&gt; prt
+        1: metronome[Tick] -&gt; optical_model[WfeRms&lt;-9&gt;]${1}.. -&gt; prt
         1: optical_model[DetectorFrame]
             -&gt; processor[PyramidMeasurements]
                 -&gt; calibrator[ResidualM2modes]
                     -&gt; pym_ctrl[M2modes]!
                         -&gt; optical_model
+        10: pym_ctrl[M2modes]!${n_mode*7}
     );
 
     Ok(())
@@ -255,7 +256,7 @@ async fn main() -&gt; anyhow::Result&lt;()&gt; {
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../closed-loop_NGAO.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../closed_loop_ngao/telemetry.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
@@ -266,7 +267,7 @@ async fn main() -&gt; anyhow::Result&lt;()&gt; {
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../closed-loop_NGAO.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../closed_loop_ngao/telemetry.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 

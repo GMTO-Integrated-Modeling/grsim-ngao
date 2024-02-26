@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Introduction - GMT NGAO Model with Rust DOS Actors</title>
+        <title>Telemetry - GMT NGAO Model with Rust DOS Actors</title>
 
 
         <!-- Custom HTML head -->
@@ -12,21 +12,21 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff">
 
-        <link rel="icon" href="favicon.svg">
-        <link rel="shortcut icon" href="favicon.png">
-        <link rel="stylesheet" href="css/variables.css">
-        <link rel="stylesheet" href="css/general.css">
-        <link rel="stylesheet" href="css/chrome.css">
-        <link rel="stylesheet" href="css/print.css" media="print">
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
 
         <!-- Fonts -->
-        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
-        <link rel="stylesheet" href="fonts/fonts.css">
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
 
         <!-- Highlight.js Stylesheets -->
-        <link rel="stylesheet" href="highlight.css">
-        <link rel="stylesheet" href="tomorrow-night.css">
-        <link rel="stylesheet" href="ayu-highlight.css">
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
 
         <!-- Custom theme stylesheets -->
 
@@ -35,7 +35,7 @@
     <div id="body-container">
         <!-- Provide site root to javascript -->
         <script>
-            var path_to_root = "";
+            var path_to_root = "../";
             var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
         </script>
 
@@ -88,7 +88,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="introduction.html" class="active"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="getting_started.html"><strong aria-hidden="true">2.</strong> Getting started</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="getting_started/optical_model.html"><strong aria-hidden="true">2.1.</strong> Optical Model</a></li><li class="chapter-item expanded "><a href="getting_started/dyn_optical_model.html"><strong aria-hidden="true">2.2.</strong> Dynamic Optical Model</a></li></ol></li><li class="chapter-item expanded "><a href="closed-loop_NGAO.html"><strong aria-hidden="true">3.</strong> Closed-loop NGAO</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="closed_loop_ngao/telemetry.html"><strong aria-hidden="true">3.1.</strong> Telemetry</a></li><li class="chapter-item expanded "><a href="closed_loop_ngao/complete_model.html"><strong aria-hidden="true">3.2.</strong> Complete model</a></li></ol></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="../introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="../getting_started.html"><strong aria-hidden="true">2.</strong> Getting started</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../getting_started/optical_model.html"><strong aria-hidden="true">2.1.</strong> Optical Model</a></li><li class="chapter-item expanded "><a href="../getting_started/dyn_optical_model.html"><strong aria-hidden="true">2.2.</strong> Dynamic Optical Model</a></li></ol></li><li class="chapter-item expanded "><a href="../closed-loop_NGAO.html"><strong aria-hidden="true">3.</strong> Closed-loop NGAO</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../closed_loop_ngao/telemetry.html" class="active"><strong aria-hidden="true">3.1.</strong> Telemetry</a></li><li class="chapter-item expanded "><a href="../closed_loop_ngao/complete_model.html"><strong aria-hidden="true">3.2.</strong> Complete model</a></li></ol></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle">
                 <div class="sidebar-resize-indicator"></div>
@@ -144,13 +144,13 @@
                     <h1 class="menu-title">GMT NGAO Model with Rust DOS Actors</h1>
 
                     <div class="right-buttons">
-                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
                             <i id="print-button" class="fa fa-print"></i>
                         </a>
                         <a href="https://github.com/GMTO-Integrated-Modeling/grsim-ngao/tree/main/guide" title="Git repository" aria-label="Git repository">
                             <i id="git-repository-button" class="fa fa-github"></i>
                         </a>
-                        <a href="https://github.com/GMTO-Integrated-Modeling/grsim-ngao/edit/main/guide/src/introduction.md" title="Suggest an edit" aria-label="Suggest an edit">
+                        <a href="https://github.com/GMTO-Integrated-Modeling/grsim-ngao/edit/main/guide/src/closed_loop_ngao/telemetry.md" title="Suggest an edit" aria-label="Suggest an edit">
                             <i id="git-edit-button" class="fa fa-edit"></i>
                         </a>
 
@@ -179,18 +179,35 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="introduction"><a class="header" href="#introduction">Introduction</a></h1>
-<p>The GMT NGAO model is build with the <a href="https://rconan.github.io/dos-actors">GMT DOS Actors</a> integrated modeling framework.
-It is leveraging 2 crates: <a href="https://crates.io/crates/crseo">crseo</a> and <a href="https://crates.io/crates/gmt_dos-clients_crseo">gmt_dos-clients_crseo</a>.</p>
-<p><a href="https://crates.io/crates/crseo">crseo</a> is a Rust wrapper for the GMT optical ray tracing and Fourier propagation software <a href="https://github.com/rconan/CEO">CEO</a>.
-<a href="https://crates.io/crates/gmt_dos-clients_crseo">gmt_dos-clients_crseo</a> is a higher level API build on top on <a href="https://crates.io/crates/crseo">crseo</a> and it also implements the <a href="https://crates.io/crates/gmt_dos_actors-clients_interface">interface</a> for DOS <a href="https://crates.io/crates/gmt_dos_actors">actors</a></p>
+                        <h1 id="telemetry"><a class="header" href="#telemetry">Telemetry</a></h1>
+<p>A new dependency is required in order to log data from any model:</p>
+<pre><code class="language-bash">cargo add gmt_dos-clients_arrow
+</code></pre>
+<p>Telemetry or data logging is achieve by apending a <code>$</code> <a href="https://docs.rs/gmt_dos-actors_dsl/latest/gmt_dos_actors_dsl/macro.actorscript.html#client-output-pair">sign</a> to an output with the size of the output within braces:</p>
+<pre><code class="language-rust no_run noplayground">        1: metronome[Tick] -&gt; optical_model[WfeRms&lt;-9&gt;]${1}.. -&gt; prt
+        10: pym_ctrl[M2modes]!${n_mode*7}
+</code></pre>
+<p>The source wavefront error RMS is logged into the <a href="https://parquet.apache.org/">Apache Parquet</a> file: <code>model-data_1.parquet</code>
+and M2 modal coefficients are decimated by a factor 10 and written to <code>model-data_10.parquet</code>.</p>
+<p>The <a href="https://parquet.apache.org/">Parquet</a> files can be read in Python with <code>pandas</code> and the data can be loaded into <code>numpy</code> arrays, e.g.</p>
+<pre><code class="language-python">import pandas as pd
+import numpy as np
+df = pd.read_parquet("model-data_1.parquet")
+wfe_rms = np.vstack(df["WfeRms&lt;-9"])
+df = pd.read_parquet("model-data_10.parquet")
+modes = np.vstack(df['M2modes'])
+</code></pre>
+<p>Each row of the <code>numpy</code> array is a time sample.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../closed-loop_NGAO.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
 
-                            <a rel="next prefetch" href="getting_started.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../closed_loop_ngao/complete_model.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -200,8 +217,11 @@ It is leveraging 2 crates: <a href="https://crates.io/crates/crseo">crseo</a> an
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../closed-loop_NGAO.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
 
-                    <a rel="next prefetch" href="getting_started.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../closed_loop_ngao/complete_model.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>
@@ -216,13 +236,13 @@ It is leveraging 2 crates: <a href="https://crates.io/crates/crseo">crseo</a> an
         </script>
 
 
-        <script src="elasticlunr.min.js"></script>
-        <script src="mark.min.js"></script>
-        <script src="searcher.js"></script>
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
 
-        <script src="clipboard.min.js"></script>
-        <script src="highlight.js"></script>
-        <script src="book.js"></script>
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
 
         <!-- Custom JS scripts -->
 
