@@ -1,5 +1,5 @@
 [workspace]
-members = ["optical-model", "optical-model-pym"]
+members = ["optical-model", "optical-model-pym", "pym-optical-gain"]
 resolver = "2"
 
 [workspace.dependencies]

@@ -25,7 +25,7 @@ async fn main() -> anyhow::Result<()> {
 
     let (m2_modes, n_mode) = ("ASM_DDKLs_S7OC04184_675kls", 66);
     let calibrator: Calibration<PyramidCalibrator> = {
-        let filename = format! {"pym-{m2_modes}-{n_mode}.bin"};
+        let filename = format! {"../data/pym-{m2_modes}-{n_mode}.bin"};
         if let Ok(pymtor) = PyramidCalibrator::try_from(filename.as_str()) {
             pymtor
         } else {
