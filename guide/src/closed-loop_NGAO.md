@@ -1,7 +1,7 @@
 # Closed-loop NGAO
 
 Building upon the [dynamic optical model](getting_started/dyn_optical_model.md), we are going to build a closed-loop NGAO system with a pyramid wavefront sensor ([P-WFS]).
-First, we define the modal basis and the number of modes for M2:
+First, we define the [modal basis](https://s3.us-west-2.amazonaws.com/gmto.modeling/ASM_DDKLs_S7OC04184_675kls.ceo) and the number of modes for M2:
 ```rust,no_run,noplayground
 {{#include ../../optical-model-pym/src/main.rs:26}}
 ```
