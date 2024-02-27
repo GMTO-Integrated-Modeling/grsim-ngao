@@ -89,7 +89,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="getting_started.html"><strong aria-hidden="true">2.</strong> Getting started</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="getting_started/optical_model.html"><strong aria-hidden="true">2.1.</strong> Optical Model</a></li><li class="chapter-item expanded "><a href="getting_started/dyn_optical_model.html"><strong aria-hidden="true">2.2.</strong> Dynamic Optical Model</a></li></ol></li><li class="chapter-item expanded "><a href="closed-loop_NGAO.html"><strong aria-hidden="true">3.</strong> Closed-loop NGAO</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="closed_loop_ngao/telemetry.html"><strong aria-hidden="true">3.1.</strong> Telemetry</a></li><li class="chapter-item expanded "><a href="closed_loop_ngao/complete_model.html"><strong aria-hidden="true">3.2.</strong> Complete model</a></li></ol></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="getting_started.html"><strong aria-hidden="true">2.</strong> Getting Started</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="getting_started/optical_model.html"><strong aria-hidden="true">2.1.</strong> Optical Model</a></li><li class="chapter-item expanded "><a href="getting_started/dyn_optical_model.html"><strong aria-hidden="true">2.2.</strong> Dynamic Optical Model</a></li></ol></li><li class="chapter-item expanded "><a href="closed-loop_NGAO.html"><strong aria-hidden="true">3.</strong> Closed-loop NGAO</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="closed_loop_ngao/telemetry.html"><strong aria-hidden="true">3.1.</strong> Telemetry</a></li><li class="chapter-item expanded "><a href="closed_loop_ngao/complete_model.html"><strong aria-hidden="true">3.2.</strong> Complete model</a></li></ol></li><li class="chapter-item expanded "><a href="pym_optical_gain.html"><strong aria-hidden="true">4.</strong> Pyramid Optical Gain</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="pym_optical_gain/complete_model.html"><strong aria-hidden="true">4.1.</strong> Complete model</a></li></ol></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle">
                 <div class="sidebar-resize-indicator"></div>
@@ -442,6 +442,136 @@ async fn main() -&gt; anyhow::Result&lt;()&gt; {
 }</code></pre>
 <p>The model flowchart:
 <img src="closed_loop_ngao/closed-loop_NGAO.dot.svg" alt="closed-loop NGAO model" /></p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="pyramid-optical-gain"><a class="header" href="#pyramid-optical-gain">Pyramid Optical Gain</a></h1>
+<pre><code class="language-rust no_run noplayground">    let optical_gain = OpticalGain::new(sampling_frequency as f64, n_mode);
+    let wait_for_it = Delay::default();
+    let metronome: Timer = Timer::new(1000);
+
+    actorscript!(
+        #[model(name=ngao_optical_gain )]
+        1: metronome[Tick] -&gt; optical_model
+        1: optical_model[DetectorFrame]
+            -&gt; processor[PyramidMeasurements]
+                -&gt; calibrator[ResidualM2modes]
+                    -&gt; pym_ctrl[M2modes]!
+                        -&gt; optical_gain[M2modes]!
+                            -&gt; optical_model
+        1: calibrator[ResidualM2modes]
+            -&gt; wait_for_it[ResidualM2modes]!
+                -&gt; optical_gain
+    );
+
+    println!("{}", optical_gain.lock().await.gain());</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="complete-model-1"><a class="header" href="#complete-model-1">Complete model</a></h1>
+<p>The complete closed-loop NGAO model is given below:</p>
+<pre><code class="language-rust no_run noplayground">use std::{env, path::Path};
+
+use gmt_dos_actors::actorscript;
+use gmt_dos_clients::{print::Print, Integrator, Tick, Timer};
+use gmt_dos_clients_crseo::{
+    crseo::{
+        atmosphere,
+        wavefrontsensor::{LensletArray, Pyramid},
+        Atmosphere, FromBuilder, Gmt,
+    },
+    Calibration, DetectorFrame, OpticalModel, Processor, PyramidCalibrator, PyramidMeasurements,
+    ResidualM2modes,
+};
+use gmt_dos_clients_io::optics::{M2modes, WfeRms};
+use pym_optical_gain::{Delay, OpticalGain};
+
+#[tokio::main]
+async fn main() -&gt; anyhow::Result&lt;()&gt; {
+    let sampling_frequency = 1000_f64;
+
+    let data_repo =
+        env::var("DATA_REPO").expect("missing `DATA_REPO` env var, set it to `pwd`/data");
+
+    let n_lenslet: usize = 92;
+    let pym = Pyramid::builder()
+        .lenslet_array(LensletArray {
+            n_side_lenslet: n_lenslet,
+            n_px_lenslet: 10,
+            d: 0f64,
+        })
+        .modulation(2., 64);
+
+    let processor: Processor&lt;_&gt; = Processor::try_from(&amp;pym)?;
+
+    let (m2_modes, n_mode) = ("ASM_DDKLs_S7OC04184_675kls", 500);
+    let calibrator: Calibration&lt;PyramidCalibrator&gt; = {
+        let filename = format! {"pym-{m2_modes}-{n_mode}.bin"};
+        if let Ok(pymtor) =
+            PyramidCalibrator::try_from(Path::new(&amp;data_repo).join(&amp;filename).to_str().unwrap())
+        {
+            pymtor
+        } else {
+            let mut pymtor = PyramidCalibrator::builder(pym.clone(), m2_modes, n_mode)
+                .n_thread(7)
+                .build()?;
+            pymtor.h00_estimator()?;
+            pymtor.save(filename)?
+        }
+        .into()
+    };
+
+    let atm_builder = Atmosphere::builder().ray_tracing(
+        atmosphere::RayTracing::default()
+            .duration(5f64)
+            .filepath(Path::new(&amp;data_repo).join("atmosphere.bin")),
+    );
+
+    let optical_model = OpticalModel::&lt;Pyramid&gt;::builder()
+        .gmt(
+            Gmt::builder()
+                .m1_truss_projection(false)
+                .m2(m2_modes, n_mode),
+        )
+        .sensor(pym)
+        .atmosphere(atm_builder)
+        .sampling_frequency(sampling_frequency)
+        .build()?;
+
+    let metronome: Timer = Timer::new(100);
+
+    let prt = Print::default();
+
+    let pym_ctrl = Integrator::&lt;ResidualM2modes&gt;::new(n_mode * 7).gain(0.5);
+
+    actorscript!(
+        #[model(name=ngao)]
+        1: metronome[Tick] -&gt; optical_model[WfeRms&lt;-9&gt;] -&gt; prt
+        1: optical_model[DetectorFrame]
+            -&gt; processor[PyramidMeasurements]
+                -&gt; calibrator[ResidualM2modes]
+                    -&gt; pym_ctrl[M2modes]!
+                        -&gt; optical_model
+    );
+
+    let optical_gain = OpticalGain::new(sampling_frequency as f64, n_mode);
+    let wait_for_it = Delay::default();
+    let metronome: Timer = Timer::new(1000);
+
+    actorscript!(
+        #[model(name=ngao_optical_gain )]
+        1: metronome[Tick] -&gt; optical_model
+        1: optical_model[DetectorFrame]
+            -&gt; processor[PyramidMeasurements]
+                -&gt; calibrator[ResidualM2modes]
+                    -&gt; pym_ctrl[M2modes]!
+                        -&gt; optical_gain[M2modes]!
+                            -&gt; optical_model
+        1: calibrator[ResidualM2modes]
+            -&gt; wait_for_it[ResidualM2modes]!
+                -&gt; optical_gain
+    );
+
+    println!("{}", optical_gain.lock().await.gain());
+
+    Ok(())
+}</code></pre>
+<p>The model flowchart:</p>
+<p><img src="pym_optical_gain/ngao_optical_gain.dot.svg" alt="pyramid optical gain" /></p>
 
                     </main>
 
