@@ -183,7 +183,12 @@
 <p>Some of the prerequisites for the the NGAO model are <a href="https://developer.nvidia.com/cuda-downloads">CUDA</a> and <a href="https://www.rust-lang.org/">Rust</a>.
 <a href="https://developer.nvidia.com/cuda-downloads">CUDA</a> is the programming language that <a href="https://github.com/rconan/CEO">CEO</a> is written into, meaning that a machine with a recent NVIDIA GPU  is also mandatory.
 <a href="https://www.rust-lang.org/">Rust</a> is the programming language for DOS Actors.</p>
-<p>Once both are installed, we can start writing our first optical model.</p>
+<p>The location of the <a href="https://developer.nvidia.com/cuda-downloads">CUDA</a> compiler <code>nvcc</code> must be set with the environment variable <code>CUDACXX</code>, e.g.</p>
+<pre><code class="language-bash">export CUDACXX=/usr/local/cuda/bin/nvcc
+</code></pre>
+<p>If you do not want to set <code>CUDACXX</code> each time you log in, the line above can be written in the shell config file.
+For the <code>bash</code> shell, this is <code>.bashrc</code>.</p>
+<p>Once both, <a href="https://developer.nvidia.com/cuda-downloads">CUDA</a> and <a href="https://www.rust-lang.org/">Rust</a>, are installed, we can start writing our first optical model.</p>
 <p>Note that in order to produce model flowcharts, <a href="https://www.graphviz.org/">Graphviz</a> is needed but the models will run anyway without it.</p>
 
                     </main>

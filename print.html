@@ -186,7 +186,12 @@ It is leveraging 2 crates: <a href="https://crates.io/crates/crseo">crseo</a> an
 <p>Some of the prerequisites for the the NGAO model are <a href="https://developer.nvidia.com/cuda-downloads">CUDA</a> and <a href="https://www.rust-lang.org/">Rust</a>.
 <a href="https://developer.nvidia.com/cuda-downloads">CUDA</a> is the programming language that <a href="https://github.com/rconan/CEO">CEO</a> is written into, meaning that a machine with a recent NVIDIA GPU  is also mandatory.
 <a href="https://www.rust-lang.org/">Rust</a> is the programming language for DOS Actors.</p>
-<p>Once both are installed, we can start writing our first optical model.</p>
+<p>The location of the <a href="https://developer.nvidia.com/cuda-downloads">CUDA</a> compiler <code>nvcc</code> must be set with the environment variable <code>CUDACXX</code>, e.g.</p>
+<pre><code class="language-bash">export CUDACXX=/usr/local/cuda/bin/nvcc
+</code></pre>
+<p>If you do not want to set <code>CUDACXX</code> each time you log in, the line above can be written in the shell config file.
+For the <code>bash</code> shell, this is <code>.bashrc</code>.</p>
+<p>Once both, <a href="https://developer.nvidia.com/cuda-downloads">CUDA</a> and <a href="https://www.rust-lang.org/">Rust</a>, are installed, we can start writing our first optical model.</p>
 <p>Note that in order to produce model flowcharts, <a href="https://www.graphviz.org/">Graphviz</a> is needed but the models will run anyway without it.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="optical-model"><a class="header" href="#optical-model">Optical Model</a></h1>
 <p>For our first optical model, let's start by creating a new binary crate with <a href="https://doc.rust-lang.org/cargo/">cargo</a></p>
@@ -283,7 +288,7 @@ passes the value to <a href="https://docs.rs/gmt_dos-clients/4.0.0/gmt_dos_clien
 <img src="getting_started/model.dot.svg" alt="dynamic optical model" /></p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="closed-loop-ngao"><a class="header" href="#closed-loop-ngao">Closed-loop NGAO</a></h1>
 <p>Building upon the <a href="getting_started/dyn_optical_model.html">dynamic optical model</a>, we are going to build a closed-loop NGAO system with a pyramid wavefront sensor (<a href="https://docs.rs/crseo/latest/crseo/wavefrontsensor/struct.Pyramid.html">P-WFS</a>).
-First, we define the modal basis and the number of modes for M2:</p>
+First, we define the <a href="https://s3.us-west-2.amazonaws.com/gmto.modeling/ASM_DDKLs_S7OC04184_675kls.ceo">modal basis</a> and the number of modes for M2:</p>
 <pre><code class="language-rust no_run noplayground">    let (m2_modes, n_mode) = ("ASM_DDKLs_S7OC04184_675kls", 66);</code></pre>
 <p>and next we setup the <a href="https://docs.rs/crseo/latest/crseo/wavefrontsensor/struct.Pyramid.html">P-WFS</a></p>
 <pre><code class="language-rust no_run noplayground">    let n_lenslet: usize = 92;
@@ -392,7 +397,7 @@ async fn main() -&gt; anyhow::Result&lt;()&gt; {
 
     let (m2_modes, n_mode) = ("ASM_DDKLs_S7OC04184_675kls", 66);
     let calibrator: Calibration&lt;PyramidCalibrator&gt; = {
-        let filename = format! {"pym-{m2_modes}-{n_mode}.bin"};
+        let filename = format! {"../data/pym-{m2_modes}-{n_mode}.bin"};
         if let Ok(pymtor) = PyramidCalibrator::try_from(filename.as_str()) {
             pymtor
         } else {
