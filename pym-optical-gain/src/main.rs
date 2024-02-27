@@ -62,7 +62,7 @@ async fn main() -> anyhow::Result<()> {
                 .m2(m2_modes, n_mode),
         )
         .sensor(pym)
-        .atmosphere(atm_builder)
+        // .atmosphere(atm_builder)
         .sampling_frequency(sampling_frequency)
         .build()?;
 
@@ -93,7 +93,7 @@ async fn main() -> anyhow::Result<()> {
             -> processor[PyramidMeasurements]
                 -> calibrator[ResidualM2modes]
                     -> pym_ctrl[M2modes]!
-                        -> optical_gain[M2modes]!
+                        -> optical_gain[M2modes]
                             -> optical_model
         1: calibrator[ResidualM2modes]
             -> wait_for_it[ResidualM2modes]!
